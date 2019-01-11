@@ -619,29 +619,4 @@ class User extends FlexObject implements UserInterface
         $this->setKey($serialized['key']);
         $this->setElements($serialized['elements']);
     }
-
-    /**
-     * Serialize user.
-     */
-    public function __sleep()
-    {
-        return [
-            'items',
-            'storage'
-        ];
-    }
-
-    /**
-     * Unserialize user.
-     */
-    public function __wakeup()
-    {
-        $this->gettersVariable = 'items';
-        $this->nestedSeparator = '.';
-
-        if (null === $this->blueprints) {
-            $blueprints = new Blueprints;
-            $this->blueprints = $blueprints->get('user/account');
-        }
-    }
 }
