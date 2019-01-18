@@ -112,8 +112,12 @@ class User extends FlexObject implements UserInterface
 
     public function __construct(array $elements, $key, FlexDirectory $flexDirectory, bool $validate = false)
     {
+        // User can only be authenticated via login.
+        unset($elements['authenticated'], $elements['authorized']);
+
         parent::__construct($elements, $key, $flexDirectory, $validate);
 
+        // Define username and state if they aren't set.
         $this->defProperty('username', $key);
         $this->defProperty('state', 'enabled');
     }
@@ -469,6 +473,19 @@ class User extends FlexObject implements UserInterface
         }
 
         return parent::save();
+    }
+
+    /**
+     * @return array
+     */
+    public function prepareStorage()
+    {
+        $elements = parent::prepareStorage();
+
+        // Do not save authorization information.
+        unset($elements['authenticated'], $elements['authorized']);
+
+        return $elements;
     }
 
     /**
