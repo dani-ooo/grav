@@ -13,6 +13,7 @@ use Grav\Common\Grav;
 use Grav\Common\Utils;
 use Grav\Framework\File\Formatter\JsonFormatter;
 use Grav\Framework\File\Formatter\YamlFormatter;
+use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\FlexObject;
 use RocketTheme\Toolbox\File\FileInterface;
 
@@ -109,13 +110,13 @@ class User extends FlexObject implements UserInterface
         return $exists;
     }
 
-    /*
-    public function __construct(array $items = [], $blueprints = null)
+    public function __construct(array $elements, $key, FlexDirectory $flexDirectory, bool $validate = false)
     {
-        $this->items = $items;
-        $this->blueprints = $blueprints;
+        parent::__construct($elements, $key, $flexDirectory, $validate);
+
+        $this->defProperty('username', $key);
+        $this->defProperty('state', 'enabled');
     }
-    /*
 
     /**
      * Get value by using dot notation for nested arrays/objects.
