@@ -96,7 +96,7 @@ class FlexForm implements FlexFormInterface
         $value = $this->data ? $this->data[$name] : null;
 
         // Return the form data or fall back to the object property.
-        return $value ?? $this->getObject()->getNestedProperty($name);
+        return $value ?? $this->getObject()->value($name);
     }
 
     /**
@@ -245,5 +245,17 @@ class FlexForm implements FlexFormInterface
         $this->doTraitUnserialize($data);
 
         $this->object = $data['object'];
+    }
+
+        /**
+     * Filter validated data.
+     *
+     * @param \ArrayAccess $data
+     */
+    protected function filterData(\ArrayAccess $data): void
+    {
+        if ($data instanceof Data) {
+            $data->filter(true);
+        }
     }
 }

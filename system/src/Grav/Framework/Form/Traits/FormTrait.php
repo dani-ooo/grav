@@ -161,7 +161,7 @@ trait FormTrait
 
         try {
             $this->validateData($this->data);
-            $this->validateUploads($this->files);
+            $this->validateUploads($this->getFiles());
         } catch (ValidationException $e) {
             $list = [];
             foreach ($e->getMessages() as $field => $errors) {
@@ -264,16 +264,27 @@ trait FormTrait
      *
      * @return FormFlash
      */
-    protected function getFlash(): FormFlash
+    public function getFlash(): FormFlash
     {
         if (null === $this->flash) {
             $grav = Grav::instance();
+            $user = $grav['user'];
+            $id = null;
 
-            /** @var Session $session */
-            $session = $grav['session'];
+            $rememberState = $this->getBlueprint()->get('form/remember_state');
+            if ($rememberState === 'user') {
+                $id = $user->username;
+            }
 
-            $this->flash = new FormFlash($session->getId(), $this->getUniqueId(), $this->getName());
-            $this->flash->setUrl($grav['uri']->url)->setUser($grav['user']);
+            // By default store flash by the session id.
+            if (null === $id) {
+                /** @var Session $session */
+                $session = $grav['session'];
+                $id = $session->getId();
+            }
+
+            $this->flash = new FormFlash($id, $this->getUniqueId(), $this->getName());
+            $this->flash->setUrl($grav['uri']->url)->setUser($user);
         }
 
         return $this->flash;
@@ -316,10 +327,12 @@ trait FormTrait
         $data = isset($body['data']) ? $this->decodeData($body['data']) : null;
 
         $flash = $this->getFlash();
+        /*
         if (null !== $data) {
             $flash->setData($data);
             $flash->save();
         }
+        */
 
         $blueprint = $this->getBlueprint();
         $includeOriginal = (bool)($blueprint->form()['images']['original'] ?? null);
@@ -438,6 +451,8 @@ trait FormTrait
         foreach ($data as $key => &$value) {
             if (\is_array($value)) {
                 $value = $this->jsonDecode($value);
+            } elseif ($value === '') {
+                unset($data[$key]);
             } else {
                 $value = json_decode($value, true);
                 if ($value === null && json_last_error() !== JSON_ERROR_NONE) {
