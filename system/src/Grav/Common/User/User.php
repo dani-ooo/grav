@@ -15,6 +15,8 @@ use Grav\Framework\File\Formatter\JsonFormatter;
 use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\FlexObject;
+use Grav\Framework\Flex\Traits\FlexMediaTrait;
+use Grav\Framework\Media\Interfaces\MediaManipulationInterface;
 use RocketTheme\Toolbox\File\FileInterface;
 
 /**
@@ -36,8 +38,10 @@ use RocketTheme\Toolbox\File\FileInterface;
  * @property bool $authenticated
  * @property bool $authorized
  */
-class User extends FlexObject implements UserInterface
+class User extends FlexObject implements UserInterface, MediaManipulationInterface
 {
+    use FlexMediaTrait;
+
     /**
      * @return array
      */
@@ -362,6 +366,7 @@ class User extends FlexObject implements UserInterface
      *
      * @param array $data
      * @return $this
+     * @deprecated Use `$user->update($data)` instead (same but with data validation & filtering, file upload support)
      */
     public function merge(array $data)
     {
@@ -397,8 +402,8 @@ class User extends FlexObject implements UserInterface
     }
 
     /**
-     * @return $this
      * Filter all items by using blueprints.
+     * @return $this
      */
     public function filter()
     {

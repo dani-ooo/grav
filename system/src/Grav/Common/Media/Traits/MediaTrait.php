@@ -23,7 +23,10 @@ trait MediaTrait
      *
      * @return array Empty array means default ordering.
      */
-    abstract public function getMediaOrder();
+    public function getMediaOrder()
+    {
+        return [];
+    }
 
     /**
      * Get URI ot the associated media. Method will return null if path isn't URI.
