@@ -39,6 +39,22 @@ use RocketTheme\Toolbox\File\FileInterface;
 class User extends FlexObject implements UserInterface
 {
     /**
+     * @return array
+     */
+    public static function getCachedMethods()
+    {
+        return [
+            'load' => false,
+            'find' => false,
+            'remove' => false,
+            'get' => true,
+            'set' => false,
+            'undef' => false,
+            'def' => false,
+        ] + parent::getCachedMethods();
+    }
+
+    /**
      * Load user account.
      *
      * Always creates user object. To check if user exists, use $this->exists().
@@ -52,18 +68,24 @@ class User extends FlexObject implements UserInterface
         $collection = static::getCollection();
 
         if ($username !== '') {
+            $key = mb_strtolower($username);
             $user = $collection[mb_strtolower($username)];
             if ($user) {
                 return $user;
             }
+        } else {
+            $key = '';
         }
 
         $directory = $collection->getFlexDirectory();
 
-        return $directory->createObject([
-            'username' => $username,
-            'state' => 'enabled'
-        ]);
+        return $directory->createObject(
+            [
+                'username' => $username,
+                'state' => 'enabled'
+            ],
+            $key
+        );
     }
 
     /**

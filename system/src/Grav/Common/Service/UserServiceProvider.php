@@ -31,10 +31,10 @@ class UserServiceProvider implements ServiceProviderInterface
                     'storage' => [
                         'class' => UserStorage::class,
                         'options' => [
-                            'formattter' => ['class' => YamlFormatter::class],
+                            'formatter' => ['class' => YamlFormatter::class],
                             'folder' => 'account://',
-                            'pattern' => '{FOLDER}/{KEY}.yaml',
-                            'indexed' => false
+                            'pattern' => '{FOLDER}/{KEY:2}/{KEY}/user.yaml',
+                            'indexed' => true
                         ]
                     ]
                 ]

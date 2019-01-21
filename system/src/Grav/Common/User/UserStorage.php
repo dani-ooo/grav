@@ -9,8 +9,8 @@
 
 namespace Grav\Common\User;
 
-use Grav\Framework\Flex\Storage\FileStorage;
+use Grav\Framework\Flex\Storage\FolderStorage;
 
-class UserStorage extends FileStorage
+class UserStorage extends FolderStorage
 {
 }
