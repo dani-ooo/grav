@@ -10,12 +10,15 @@
 namespace Grav\Common\User;
 
 use Grav\Common\Grav;
+use Grav\Common\Page\Medium\ImageMedium;
+use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Utils;
 use Grav\Framework\File\Formatter\JsonFormatter;
 use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\FlexObject;
 use Grav\Framework\Flex\Traits\FlexMediaTrait;
+use Grav\Framework\Form\FormFlashFile;
 use Grav\Framework\Media\Interfaces\MediaManipulationInterface;
 use RocketTheme\Toolbox\File\FileInterface;
 
@@ -214,6 +217,47 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     }
 
     /**
+     * Get value from a page variable (used mostly for creating edit forms).
+     *
+     * @param string $name Variable name.
+     * @param mixed $default
+     * @param string|null $separator
+     * @return mixed
+     */
+    public function value($name, $default = null, $separator = null)
+    {
+        $value = parent::value($name, null, $separator);
+
+        if ($name === 'avatar') {
+            return $this->parseFileProperty($value);
+        }
+
+        if (null === $value) {
+            if ($name === 'media_order') {
+                return implode(',', $this->getMediaOrder());
+            }
+        }
+
+        return $value ?? $default;
+    }
+
+    /**
+     * @param string $property
+     * @param mixed $default
+     * @return array
+     */
+    public function getProperty($property, $default = null)
+    {
+        $value = parent::getProperty($property, $default);
+
+        if ($property === 'avatar') {
+            $value = $this->parseFileProperty($value);
+        }
+
+        return $value;
+    }
+
+    /**
      * Implements Countable interface.
      *
      * @return int
@@ -231,7 +275,10 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
      */
     public function toArray()
     {
-        return $this->jsonSerialize();
+        $array = $this->jsonSerialize();
+        $array['avatar'] = $this->parseFileProperty('avatar', $array['avatar'] ?? null);
+
+        return $array;
     }
 
     /**
@@ -584,7 +631,11 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
         $avatar = $this->getProperty('avatar');
         if (\is_array($avatar)) {
             $avatar = array_shift($avatar);
-            return Grav::instance()['base_url'] . '/' . $avatar['path'];
+            $media = $this->getMedia();
+            /** @var ImageMedium $file */
+            $file = $media[$avatar['name']];
+
+            return $file->url();
         }
 
         $provider = $this->getProperty('provider');
@@ -629,6 +680,65 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     protected static function getCollection()
     {
         return Grav::instance()['users'];
+    }
+
+    /**
+     * @param array $files
+     */
+    protected function setUpdatedMedia(array $files): void
+    {
+        $list = [];
+        foreach ($files as $field => $group) {
+            foreach ($group as $filename => $file) {
+                $list[$filename] = $file;
+                if ($file) {
+                    /** @var FormFlashFile $file */
+                    $data = $file->jsonSerialize();
+                    $path = $file->getClientFilename();
+                    unset($data['tmp_name'], $data['path']);
+
+                    $this->setNestedProperty("{$field}\n{$path}", $data, "\n");
+                } else {
+                    $this->unsetNestedProperty("{$field}\n{$filename}", "\n");
+                }
+            }
+        }
+
+        $this->_uploads = $list;
+    }
+
+    /**
+     * @param array $value
+     * @return array
+     */
+    protected function parseFileProperty($value)
+    {
+        if (!\is_array($value)) {
+            return [];
+        }
+
+        //$originalMedia = $this->getOriginalMedia();
+        $resizedMedia = $this->getMedia();
+
+        $list = [];
+        foreach ($value as $filename => $info) {
+            /** @var Medium $thumbFile */
+            $thumbFile = $resizedMedia[$filename];
+            /** @var Medium $imageFile */
+            $imageFile = $originalMedia[$filename] ?? $thumbFile;
+            if ($thumbFile) {
+                $list[$filename] = [
+                    'name' => $filename,
+                    'type' => $info['type'],
+                    'size' => filesize($imageFile->path()),
+                    'image_url' => $imageFile->url(),
+                    'thumb_url' =>  $thumbFile->url(),
+                    //'cropData' => (object)($imageFile->metadata()['upload']['crop'] ?? [])
+                ];
+            }
+        }
+
+        return $list;
     }
 
     /**
