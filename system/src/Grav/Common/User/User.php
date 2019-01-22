@@ -276,7 +276,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     public function toArray()
     {
         $array = $this->jsonSerialize();
-        $array['avatar'] = $this->parseFileProperty('avatar', $array['avatar'] ?? null);
+        $array['avatar'] = $this->parseFileProperty($array['avatar'] ?? null);
 
         return $array;
     }
