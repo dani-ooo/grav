@@ -622,6 +622,24 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     }
 
     /**
+     * Return media object for the User's avatar
+     *
+     * @return ImageMedium|null
+     */
+    public function getAvatarMedia()
+    {
+        $avatar = $this->getProperty('avatar');
+        if (\is_array($avatar)) {
+            $avatar = array_shift($avatar);
+            $media = $this->getMedia();
+            /** @var ImageMedium $file */
+            return $media[$avatar['name']];
+        }
+
+        return null;
+    }
+
+    /**
      * Return the User's avatar URL
      *
      * @return string
