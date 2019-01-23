@@ -658,7 +658,9 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
             /** @var ImageMedium $file */
             $file = $media[$avatar['name']];
 
-            return $file->url();
+            if ($file) {
+                return $file->url();
+            }
         }
 
         $provider = $this->getProperty('provider');
