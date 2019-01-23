@@ -732,7 +732,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     protected function parseFileProperty($value)
     {
         if (!\is_array($value)) {
-            return [];
+            return $value;
         }
 
         //$originalMedia = $this->getOriginalMedia();
