@@ -25,7 +25,7 @@ class UserIndex extends FlexIndex
         $index = parent::loadEntriesFromStorage($storage);
 
         $locator = Grav::instance()['locator'];
-        $filename = $locator->findResource($storage->getStoragePath() . '/index.yaml', true, true);
+        $filename = $locator->findResource('user-data://accounts/index.yaml', true, true);
         $indexFile = CompiledYamlFile::instance($filename);
 
         $data = (array)$indexFile->content();
