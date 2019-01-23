@@ -22,6 +22,7 @@ use Grav\Framework\Flex\FlexObject;
 use Grav\Framework\Flex\Traits\FlexMediaTrait;
 use Grav\Framework\Form\FormFlashFile;
 use Grav\Framework\Media\Interfaces\MediaManipulationInterface;
+use Psr\Http\Message\UploadedFileInterface;
 use RocketTheme\Toolbox\File\FileInterface;
 
 /**
@@ -46,6 +47,8 @@ use RocketTheme\Toolbox\File\FileInterface;
 class User extends FlexObject implements UserInterface, MediaManipulationInterface
 {
     use FlexMediaTrait;
+
+    protected $_uploads_original;
 
     /**
      * @return array
@@ -718,9 +721,17 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     protected function setUpdatedMedia(array $files): void
     {
         $list = [];
+        $list_original = [];
         foreach ($files as $field => $group) {
             foreach ($group as $filename => $file) {
+                if (strpos($field, '/original')) {
+                    // Special handling for original images.
+                    $list_original[$filename] = $file;
+                    continue;
+                }
+
                 $list[$filename] = $file;
+
                 if ($file) {
                     /** @var FormFlashFile $file */
                     $data = $file->jsonSerialize();
@@ -735,6 +746,35 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
         }
 
         $this->_uploads = $list;
+        $this->_uploads_original = $list_original;
+    }
+
+    protected function saveUpdatedMedia(): void
+    {
+        /**
+         * @var string $filename
+         * @var UploadedFileInterface $file
+         */
+        foreach ($this->getUpdatedMedia() as $filename => $file) {
+            if ($file) {
+                $this->uploadMediaFile($file, $filename);
+            } else {
+                $this->deleteMediaFile($filename);
+            }
+        }
+
+        // Upload/delete original sized images.
+        /** @var FormFlashFile $file */
+        foreach ($this->_uploads_original ?? [] as $name => $file) {
+            $name = 'original/' . $name;
+            if ($file) {
+                $this->uploadMediaFile($file, $name);
+            } else {
+                $this->deleteMediaFile($name);
+            }
+        }
+
+        $this->setUpdatedMedia([]);
     }
 
     /**
