@@ -7,10 +7,10 @@
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\User;
+namespace Grav\Common\User\Storage;
 
 use Grav\Framework\Flex\Storage\FolderStorage;
 
-class UserStorage extends FolderStorage
+class UserFolderStorage extends FolderStorage
 {
 }
