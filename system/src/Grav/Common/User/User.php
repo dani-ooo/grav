@@ -10,6 +10,8 @@
 namespace Grav\Common\User;
 
 use Grav\Common\Grav;
+use Grav\Common\Media\Interfaces\MediaCollectionInterface;
+use Grav\Common\Page\Media;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Utils;
@@ -244,7 +246,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     /**
      * @param string $property
      * @param mixed $default
-     * @return array
+     * @return mixed
      */
     public function getProperty($property, $default = null)
     {
@@ -701,6 +703,16 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     }
 
     /**
+     * Gets the associated media collection (original images).
+     *
+     * @return MediaCollectionInterface  Representation of associated media.
+     */
+    protected function getOriginalMedia()
+    {
+        return (new Media($this->getMediaFolder() . '/original', $this->getMediaOrder()))->setTimestamps();
+    }
+
+    /**
      * @param array $files
      */
     protected function setUpdatedMedia(array $files): void
@@ -735,7 +747,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
             return $value;
         }
 
-        //$originalMedia = $this->getOriginalMedia();
+        $originalMedia = $this->getOriginalMedia();
         $resizedMedia = $this->getMedia();
 
         $list = [];
@@ -755,7 +767,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
                     'size' => $info['size'],
                     'image_url' => $imageFile->url(),
                     'thumb_url' =>  $thumbFile->url(),
-                    //'cropData' => (object)($imageFile->metadata()['upload']['crop'] ?? [])
+                    'cropData' => (object)($imageFile->metadata()['upload']['crop'] ?? [])
                 ];
             }
         }
