@@ -98,6 +98,8 @@ trait MediaTrait
         $cache = $this->getMediaCache();
         $cacheKey = md5('media' . $this->getCacheKey());
         $cache->delete($cacheKey);
+
+        $this->media = null;
     }
 
     /**

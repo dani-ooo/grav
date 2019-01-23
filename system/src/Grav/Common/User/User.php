@@ -740,6 +740,10 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
 
         $list = [];
         foreach ($value as $filename => $info) {
+            if (!\is_array($info)) {
+                continue;
+            }
+
             /** @var Medium $thumbFile */
             $thumbFile = $resizedMedia[$filename];
             /** @var Medium $imageFile */
@@ -748,7 +752,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
                 $list[$filename] = [
                     'name' => $filename,
                     'type' => $info['type'],
-                    'size' => filesize($imageFile->path()),
+                    'size' => $info['size'],
                     'image_url' => $imageFile->url(),
                     'thumb_url' =>  $thumbFile->url(),
                     //'cropData' => (object)($imageFile->metadata()['upload']['crop'] ?? [])
