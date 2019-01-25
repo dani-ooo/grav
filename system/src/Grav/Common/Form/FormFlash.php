@@ -157,15 +157,25 @@ class FormFlash extends \Grav\Framework\Form\FormFlash
         // Prepare object for later save
         $upload['file']['name'] = $filename;
 
+        // Deal with crop upload
         $oldUpload = $this->files[$field][$filename] ?? null;
         if ($oldUpload) {
             $originalUpload = $this->files[$field . '/original'][$filename] ?? null;
             if ($originalUpload) {
-                $this->removeTmpFile($oldUpload['tmp_name']);
+                // If there is original file already present, remove the modified file
+                $originalUpload['crop'] = $crop;
+                $this->removeTmpFile($oldUpload['tmp_name'] ?? '');
             } else {
+                // Otherwise make the previous file as original
                 $oldUpload['crop'] = $crop;
                 $this->files[$field . '/original'][$filename] = $oldUpload;
             }
+        } else {
+            $this->files[$field . '/original'][$filename] = [
+                'name' => $filename,
+                'type' => $upload['file']['type'],
+                'crop' => $crop
+            ];
         }
 
         // Prepare data to be saved later
