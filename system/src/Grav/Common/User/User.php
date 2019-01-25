@@ -753,6 +753,17 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
 
     protected function saveUpdatedMedia(): void
     {
+        // Upload/delete original sized images.
+        /** @var FormFlashFile $file */
+        foreach ($this->_uploads_original ?? [] as $name => $file) {
+            $name = 'original/' . $name;
+            if ($file) {
+                $this->uploadMediaFile($file, $name);
+            } else {
+                $this->deleteMediaFile($name);
+            }
+        }
+
         /**
          * @var string $filename
          * @var UploadedFileInterface $file
@@ -762,17 +773,6 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
                 $this->uploadMediaFile($file, $filename);
             } else {
                 $this->deleteMediaFile($filename);
-            }
-        }
-
-        // Upload/delete original sized images.
-        /** @var FormFlashFile $file */
-        foreach ($this->_uploads_original ?? [] as $name => $file) {
-            $name = 'original/' . $name;
-            if ($file) {
-                $this->uploadMediaFile($file, $name);
-            } else {
-                $this->deleteMediaFile($name);
             }
         }
 
