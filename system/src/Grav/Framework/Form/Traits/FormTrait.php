@@ -99,7 +99,7 @@ trait FormTrait
      */
     public function getFiles(): array
     {
-        return $this->files;
+        return $this->files ?? [];
     }
 
     public function getValue(string $name)
