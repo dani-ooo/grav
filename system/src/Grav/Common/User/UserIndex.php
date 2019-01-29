@@ -9,10 +9,12 @@
 
 namespace Grav\Common\User;
 
+use Grav\Common\Debugger;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
 use Grav\Framework\Flex\FlexIndex;
 use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
+use Monolog\Logger;
 
 class UserIndex extends FlexIndex
 {
@@ -24,13 +26,22 @@ class UserIndex extends FlexIndex
     {
         $index = parent::loadEntriesFromStorage($storage);
 
-        $locator = Grav::instance()['locator'];
+        $grav = Grav::instance();
+        $locator = $grav['locator'];
         $filename = $locator->findResource('user-data://accounts/index.yaml', true, true);
         $indexFile = CompiledYamlFile::instance($filename);
 
         try {
             $data = (array)$indexFile->content();
         } catch (\Exception $e) {
+            /** @var Logger $logger */
+            $logger = $grav['log'];
+            $logger->addAlert(sprintf('Reading FlexUser index failed: %s', $e->getMessage()));
+
+            /** @var Debugger $debugger */
+            $debugger = $grav['debugger'];
+            $debugger->addException($e);
+
             $data = [];
         }
 
