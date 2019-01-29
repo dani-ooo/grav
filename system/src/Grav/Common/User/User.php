@@ -81,7 +81,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
 
         if ($username !== '') {
             $key = mb_strtolower($username);
-            $user = $collection[mb_strtolower($username)];
+            $user = $collection->get($key);
             if ($user) {
                 return $user;
             }
@@ -112,8 +112,14 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
         $collection = static::getCollection();
 
         foreach ($fields as $field) {
-            if ($field === 'username') {
-                $user = $collection[mb_strtolower($query)];
+            if ($field === 'key') {
+                $user = $collection->get($query);
+            } elseif ($field === 'storage_key') {
+                $user = $collection->withKeyField('storage_key')->get($query);
+            } elseif ($field === 'flex_key') {
+                $user = $collection->withKeyField('flex_key')->get($query);
+            } elseif ($field === 'username') {
+                $user = $collection->get(mb_strtolower($query));
             } else {
                 $user = $collection->find($query, $field);
             }
