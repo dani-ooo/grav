@@ -28,7 +28,11 @@ class UserIndex extends FlexIndex
         $filename = $locator->findResource('user-data://accounts/index.yaml', true, true);
         $indexFile = CompiledYamlFile::instance($filename);
 
-        $data = (array)$indexFile->content();
+        try {
+            $data = (array)$indexFile->content();
+        } catch (\Exception $e) {
+            $data = [];
+        }
 
         $entries = $data['index'] ?? [];
         foreach ($entries as $key => $row) {
