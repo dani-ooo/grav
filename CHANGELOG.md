@@ -1,3 +1,10 @@
+# v1.7.0-beta.1
+## mm/dd/2019
+
+1. [](#new)
+    * New **FlexObjects** powered `Users` for increased performance and capability
+    * `User::find()` supports lookup user based on username, email, fullname, or flex-key
+
 # v1.6.0-beta.9
 ## mm/dd/2019
 
