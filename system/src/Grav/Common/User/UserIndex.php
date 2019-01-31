@@ -1,9 +1,9 @@
 <?php
 
 /**
- * @package    Grav.Common.User
+ * @package    Grav\Common\User
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -24,60 +24,45 @@ class UserIndex extends FlexIndex
      */
     public static function loadEntriesFromStorage(FlexStorageInterface $storage) : array
     {
-        $index = parent::loadEntriesFromStorage($storage);
+        // Load saved index.
+        $index = static::loadEntriesFromIndex($storage);
 
+        // Load up to date index.
+        $entries = parent::loadEntriesFromStorage($storage);
+
+        return static::updateIndexFile($storage, $index, $entries);
+    }
+
+    protected static function getIndexData($key, ?array $row)
+    {
+        return [
+            'key' => $row['username'] ?? $key,
+            'email' => $row['email'] ?? '',
+        ];
+    }
+
+    protected static function getIndexFile(FlexStorageInterface $storage)
+    {
+        // Load saved index file.
         $grav = Grav::instance();
         $locator = $grav['locator'];
         $filename = $locator->findResource('user-data://accounts/index.yaml', true, true);
-        $indexFile = CompiledYamlFile::instance($filename);
 
-        try {
-            $data = (array)$indexFile->content();
-        } catch (\Exception $e) {
-            /** @var Logger $logger */
-            $logger = $grav['log'];
-            $logger->addAlert(sprintf('Reading FlexUser index failed: %s', $e->getMessage()));
+        return CompiledYamlFile::instance($filename);
+    }
 
-            /** @var Debugger $debugger */
-            $debugger = $grav['debugger'];
-            $debugger->addException($e);
+    protected static function onChanges(array $entries, array $added, array $updated, array $removed)
+    {
+        $message = sprintf('Flex: User index updated, %d objects (%d added, %d updated, %d removed).', \count($entries), \count($added), \count($updated), \count($removed));
 
-            $data = [];
-        }
+        $grav = Grav::instance();
 
-        $entries = $data['index'] ?? [];
-        foreach ($entries as $key => $row) {
-            $storage_key = $row['storage_key'];
-            if (!isset($index[$storage_key])) {
-                // Entry has been removed from storage.
-                unset($entries[$storage_key]);
-            } elseif ($index[$storage_key]['storage_timestamp'] === $row['storage_timestamp']) {
-                // Entry is up to date, no update needed.
-                unset($index[$storage_key]);
-            }
-        }
+        /** @var Logger $logger */
+        $logger = $grav['log'];
+        $logger->addDebug($message);
 
-        if ($index) {
-            $indexFile->lock();
-
-            $keys = array_fill_keys(array_keys($index), null);
-            $rows = $storage->readRows($keys);
-
-            foreach ($rows as $key => $row) {
-                $entries[$key] = array_merge(
-                    $index[$key],
-                    [
-                        'key' => $row['username'] ?? $key,
-                        'email' => $row['email'] ?? '',
-                    ]
-                );
-            }
-
-            ksort($entries, SORT_NATURAL);
-
-            $indexFile->save(['index' => $entries]);
-        }
-
-        return $entries;
+        /** @var Debugger $debugger */
+        $debugger = $grav['debugger'];
+        $debugger->addMessage($message, 'debug');
     }
 }
