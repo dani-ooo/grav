@@ -5,20 +5,28 @@
     * New **FlexObjects** powered `Users` for increased performance and capability
     * `User::find()` supports lookup user based on username, email, fullname, or flex-key
 
-# v1.6.0-beta.9
+# v1.6.0-rc.2
 ## mm/dd/2019
+
+1. [](#new)
+    * Added index file support for Flex Objects
+1. [](#improved)
+    * Improved error detection for broken Flex Objects
+    * Removed apc and xcache support, made apc alias of apcu
+1. [](#bugfix)
+    * Fixed non-namespaced exceptions in scheduler
+
+# v1.6.0-rc.1
+## 01/30/2019
 
 1. [](#improved)
     * Improved `$page->forms()` call, added `$page->addForms()`
     * Made `FormFlashFile` more robust against deleted files
-    * Removed apc and xcache support, made apc alias of apcu
-1. [](#bugfix)
+    * Updated languages from crowdin
     * Fixed a bug in `FormFlashFile::moveTo()` not deleting the old file
     * Fixed `FlexMediaTrait::getMedia()` trying to include uploaded but already moved media
     * Fixed `ImageMedium` constructor warning when file does not exist
-    * Fixed bad host header in PSR-7 (if using 'php -S localhost:8000 system/router.php')
-    * Fixed Getters::count() method not returning anything
-    * Fixed non-namespaced exceptions in scheduler
+    * Fixed bad host header in PSR-7 (if using `php -S localhost:8000 system/router.php`)
     
 # v1.6.0-beta.8
 ## 01/25/2019
