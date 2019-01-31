@@ -123,7 +123,7 @@ class GravCore extends AbstractPackageCollection
     public function getMinPHPVersion()
     {
         // If non min set, assume current PHP version
-        if (null === $this->min_php) {
+        if (is_null($this->min_php)) {
             $this->min_php = phpversion();
         }
         return $this->min_php;

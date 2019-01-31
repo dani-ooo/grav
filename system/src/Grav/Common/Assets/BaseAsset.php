@@ -14,16 +14,17 @@ use Grav\Common\Grav;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Framework\Object\PropertyObject;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 abstract class BaseAsset extends PropertyObject
 {
     use AssetUtilsTrait;
 
-    protected const CSS_ASSET = true;
-    protected const JS_ASSET = false;
+    const CSS_ASSET = true;
+    const JS_ASSET = false;
 
     /** @const Regex to match CSS import content */
-    protected const CSS_IMPORT_REGEX = '{@import(.*?);}';
+    const CSS_IMPORT_REGEX = '{@import(.*?);}';
 
     protected $asset;
 
@@ -81,7 +82,7 @@ abstract class BaseAsset extends PropertyObject
         // Do some special stuff for CSS/JS (not inline)
         if (!Utils::startsWith($this->getType(), 'inline')) {
             $this->base_url = rtrim($uri->rootUrl($config->get('system.absolute_urls')), '/') . '/';
-            $this->remote = static::isRemoteLink($asset);
+            $this->remote = $this->isRemoteLink($asset);
 
             // Move this to render?
             if (!$this->remote) {

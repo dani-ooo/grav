@@ -9,6 +9,8 @@
 
 namespace Grav\Common;
 
+use Grav\Common\Grav;
+
 /**
 * This file was originally part of the Akelos Framework
 */
@@ -45,14 +47,14 @@ class Inflector
     {
         static::init();
 
-        if ((int)$count === 1) {
+        if ($count == 1) {
             return $word;
         }
 
         $lowercased_word = strtolower($word);
 
         foreach (static::$uncountable as $_uncountable) {
-            if (substr($lowercased_word, -1 * strlen($_uncountable)) === $_uncountable) {
+            if (substr($lowercased_word, (-1 * strlen($_uncountable))) == $_uncountable) {
                 return $word;
             }
         }
@@ -85,13 +87,13 @@ class Inflector
     {
         static::init();
 
-        if ((int)$count !== 1) {
+        if ($count != 1) {
             return $word;
         }
 
         $lowercased_word = strtolower($word);
         foreach (static::$uncountable as $_uncountable) {
-            if (substr($lowercased_word, -1 * strlen($_uncountable)) === $_uncountable) {
+            if (substr($lowercased_word, (-1 * strlen($_uncountable))) == $_uncountable) {
                 return $word;
             }
         }
@@ -130,7 +132,7 @@ class Inflector
      */
     public static function titleize($word, $uppercase = '')
     {
-        $uppercase = $uppercase === 'first' ? 'ucfirst' : 'ucwords';
+        $uppercase = $uppercase == 'first' ? 'ucfirst' : 'ucwords';
 
         return $uppercase(static::humanize(static::underscorize($word)));
     }
@@ -214,7 +216,7 @@ class Inflector
      */
     public static function humanize($word, $uppercase = '')
     {
-        $uppercase = $uppercase === 'all' ? 'ucwords' : 'ucfirst';
+        $uppercase = $uppercase == 'all' ? 'ucwords' : 'ucfirst';
 
         return $uppercase(str_replace('_', ' ', preg_replace('/_id$/', '', $word)));
     }
@@ -286,19 +288,23 @@ class Inflector
     {
         static::init();
 
-        if (\in_array($number % 100, range(11, 13), true)) {
+        if (in_array(($number % 100), range(11, 13))) {
             return $number . static::$ordinals['default'];
-        }
-
-        switch ($number % 10) {
-            case 1:
-                return $number . static::$ordinals['first'];
-            case 2:
-                return $number . static::$ordinals['second'];
-            case 3:
-                return $number . static::$ordinals['third'];
-            default:
-                return $number . static::$ordinals['default'];
+        } else {
+            switch (($number % 10)) {
+                case 1:
+                    return $number . static::$ordinals['first'];
+                    break;
+                case 2:
+                    return $number . static::$ordinals['second'];
+                    break;
+                case 3:
+                    return $number . static::$ordinals['third'];
+                    break;
+                default:
+                    return $number . static::$ordinals['default'];
+                    break;
+            }
         }
     }
 
@@ -320,7 +326,7 @@ class Inflector
 
         // handle years
         if ($diff->y > 0) {
-            $diff->m += 12 * $diff->y;
+            $diff->m = $diff->m + 12 * $diff->y;
         }
 
         return $diff->m;

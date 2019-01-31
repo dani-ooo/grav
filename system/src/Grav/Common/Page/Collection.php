@@ -170,7 +170,7 @@ class Collection extends Iterator
      */
     public function offsetGet($offset)
     {
-        return $this->pages->get($offset) ?: null;
+        return !empty($this->items[$offset]) ? $this->pages->get($offset) : null;
     }
 
     /**
@@ -204,7 +204,7 @@ class Collection extends Iterator
         if ($key instanceof Page) {
             $key = $key->path();
         } elseif (null === $key) {
-            $key = (string)key($this->items);
+            $key = key($this->items);
         }
         if (!\is_string($key)) {
             throw new \InvalidArgumentException('Invalid argument $key.');

@@ -180,7 +180,10 @@ class LanguageCodes
 
     public static function isRtl($code)
     {
-        return static::getOrientation($code) === 'rtl';
+        if (static::getOrientation($code) === 'rtl') {
+            return true;
+        }
+        return false;
     }
 
     public static function getNames(array $keys)

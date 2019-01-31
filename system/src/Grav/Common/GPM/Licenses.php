@@ -41,14 +41,14 @@ class Licenses
     public static function set($slug, $license)
     {
         $licenses = self::getLicenseFile();
-        $data = (array)$licenses->content();
+        $data = $licenses->content();
         $slug = strtolower($slug);
 
         if ($license && !self::validate($license)) {
             return false;
         }
 
-        if (!\is_string($license)) {
+        if (!is_string($license)) {
             if (isset($data['licenses'][$slug])) {
                 unset($data['licenses'][$slug]);
             } else {
@@ -74,15 +74,19 @@ class Licenses
     public static function get($slug = null)
     {
         $licenses = self::getLicenseFile();
-        $data = (array)$licenses->content();
+        $data = $licenses->content();
         $licenses->free();
         $slug = strtolower($slug);
 
         if (!$slug) {
-            return $data['licenses'] ?? [];
+            return isset($data['licenses']) ? $data['licenses'] : [];
         }
 
-        return $data['licenses'][$slug] ?? '';
+        if (!isset($data['licenses']) || !isset($data['licenses'][$slug])) {
+            return '';
+        }
+
+        return $data['licenses'][$slug];
     }
 
 

@@ -38,7 +38,7 @@ class Group extends Data
         $groups = [];
 
         foreach(static::groups() as $groupname => $group) {
-            $groups[$groupname] = $group['readableName'] ?? $groupname;
+            $groups[$groupname] = isset($group['readableName']) ? $group['readableName'] : $groupname;
         }
 
         return $groups;
@@ -67,7 +67,7 @@ class Group extends Data
     {
         $groups = self::groups();
 
-        $content = $groups[$groupname] ?? [];
+        $content = isset($groups[$groupname]) ? $groups[$groupname] : [];
         $content += ['groupname' => $groupname];
 
         $blueprints = new Blueprints;

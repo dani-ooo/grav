@@ -13,18 +13,17 @@ use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\BlueprintSchema;
 use Grav\Common\Grav;
 
-/**
- * Class CompiledBlueprints
- * @package Grav\Common\Config
- */
 class CompiledBlueprints extends CompiledBase
 {
-    public function __construct($cacheFolder, array $files, $path)
-    {
-        parent::__construct($cacheFolder, $files, $path);
+    /**
+     * @var int Version number for the compiled file.
+     */
+    public $version = 2;
 
-        $this->version = 2;
-    }
+    /**
+     * @var BlueprintSchema  Blueprints object.
+     */
+    protected $object;
 
     /**
      * Returns checksum from the configuration files.

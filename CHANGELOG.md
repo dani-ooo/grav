@@ -5,13 +5,14 @@
     * New **FlexObjects** powered `Users` for increased performance and capability
     * `User::find()` supports lookup user based on username, email, fullname, or flex-key
 
-# v1.6.0-beta.9
-## mm/dd/2019
+# v1.6.0-rc.1
+## 01/30/2019
 
 1. [](#improved)
     * Improved `$page->forms()` call, added `$page->addForms()`
     * Made `FormFlashFile` more robust against deleted files
     * Removed apc and xcache support, made apc alias of apcu
+    * Updated languages from crowdin
 1. [](#bugfix)
     * Fixed a bug in `FormFlashFile::moveTo()` not deleting the old file
     * Fixed `FlexMediaTrait::getMedia()` trying to include uploaded but already moved media

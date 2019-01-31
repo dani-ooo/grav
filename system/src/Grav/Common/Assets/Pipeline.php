@@ -21,17 +21,17 @@ class Pipeline extends PropertyObject
 {
     use AssetUtilsTrait;
 
-    protected const CSS_ASSET = true;
-    protected const JS_ASSET = false;
+    const CSS_ASSET = true;
+    const JS_ASSET = false;
 
     /** @const Regex to match CSS urls */
-    protected const CSS_URL_REGEX = '{url\(([\'\"]?)(.*?)\1\)}';
+    const CSS_URL_REGEX = '{url\(([\'\"]?)(.*?)\1\)}';
 
     /** @const Regex to match CSS sourcemap comments */
-    protected const CSS_SOURCEMAP_REGEX = '{\/\*# (.*?) \*\/}';
+    const CSS_SOURCEMAP_REGEX = '{\/\*# (.*?) \*\/}';
 
     /** @const Regex to match CSS import content */
-    protected const CSS_IMPORT_REGEX = '{@import(.*?);}';
+    const CSS_IMPORT_REGEX = '{@import(.*?);}';
 
     protected $css_minify;
     protected $css_minify_windows;
@@ -141,7 +141,7 @@ class Pipeline extends PropertyObject
             }
 
             // Write file
-            if (trim($buffer) !== '') {
+            if (\strlen(trim($buffer)) > 0) {
                 file_put_contents($this->assets_dir . $file, $buffer);
             }
         }
@@ -214,16 +214,16 @@ class Pipeline extends PropertyObject
             }
 
             // Write file
-            if (trim($buffer) !== '') {
+            if (\strlen(trim($buffer)) > 0) {
                 file_put_contents($this->assets_dir . $file, $buffer);
             }
         }
 
         if ($inline_group) {
-            $output = '<script' . $this->renderAttributes(). ">\n" . $buffer . "\n</script>\n";
+            $output = "<script" . $this->renderAttributes(). ">\n" . $buffer . "\n</script>\n";
         } else {
             $this->asset = $relative_path;
-            $output = '<script src="' . $relative_path . $this->renderQueryString() . '"' . $this->renderAttributes() . "></script>\n";
+            $output = "<script src=\"" . $relative_path . $this->renderQueryString() . "\"" . $this->renderAttributes() . "></script>\n";
         }
 
         return $output;
