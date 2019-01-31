@@ -36,8 +36,8 @@ class UserIndex extends FlexIndex
     protected static function getIndexData($key, ?array $row)
     {
         return [
-            'key' => $row['username'] ?? $key,
-            'email' => $row['email'] ?? '',
+            'key' => mb_strtolower($row['username'] ?? $key),
+            'email' => mb_strtolower($row['email'] ?? ''),
         ];
     }
 
