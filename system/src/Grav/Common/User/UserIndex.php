@@ -47,12 +47,6 @@ class UserIndex extends FlexIndex
 
         $entries = $data['index'] ?? [];
         foreach ($entries as $key => $row) {
-            if (!isset($row['key'])) {
-                // Index format updated: the whole index needs an update.
-                $entries = [];
-                break;
-            }
-
             $storage_key = $row['storage_key'];
             if (!isset($index[$storage_key])) {
                 // Entry has been removed from storage.
