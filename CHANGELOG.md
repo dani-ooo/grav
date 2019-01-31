@@ -5,6 +5,14 @@
     * New **FlexObjects** powered `Users` for increased performance and capability
     * `User::find()` supports lookup user based on username, email, fullname, or flex-key
 
+# v1.6.0-rc.2
+## mm/dd/2019
+
+1. [](#new)
+    * Added index file support for Flex Objects
+1. [](#improved)
+    * Improved error detection for broken Flex Objects
+
 # v1.6.0-rc.1
 ## 01/30/2019
 
