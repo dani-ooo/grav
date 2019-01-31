@@ -344,9 +344,9 @@ class Response
 
             switch ($code) {
                 case '404':
-                    throw new \RuntimeException("Page not found");
+                    throw new \RuntimeException('Page not found');
                 case '401':
-                    throw new \RuntimeException("Invalid LICENSE");
+                    throw new \RuntimeException('Invalid LICENSE');
                 default:
                     throw new \RuntimeException("Error while trying to download (code: $code): $uri \nMessage: $error_message");
             }

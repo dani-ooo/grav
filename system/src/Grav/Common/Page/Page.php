@@ -894,9 +894,7 @@ class Page implements PageInterface
             return $this->raw_content;
         }
         if ($name === 'route') {
-            $parent = $this->parent();
-
-            return $parent ? $parent->rawRoute() : '';
+            return $this->parent()->rawRoute();
         }
         if ($name === 'order') {
             $order = $this->order();
@@ -1402,7 +1400,7 @@ class Page implements PageInterface
             $priorities = Utils::getMimeTypes($supported_types);
 
             $media_type = $negotiator->getBest($http_accept, $priorities);
-            $mimetype = $media_type ? $media_type->getValue() : '';
+            $mimetype = $media_type->getValue();
             $this->template_format = Utils::getExtensionByMime($mimetype);
 
             return $this->template_format;
@@ -1706,7 +1704,7 @@ class Page implements PageInterface
                 } else {
                     // If it this is a standard meta data type
                     if ($value) {
-                        if (\in_array($key, $header_tag_http_equivs, true)) {
+                        if (in_array($key, $header_tag_http_equivs)) {
                             $this->metadata[$key] = [
                                 'http_equiv' => $key,
                                 'content' => htmlspecialchars($value, ENT_QUOTES, 'UTF-8')
@@ -1927,8 +1925,7 @@ class Page implements PageInterface
         }
 
         if (empty($this->raw_route)) {
-            $parent = $this->parent();
-            $baseRoute = $parent ? (string)$parent->rawRoute() : null;
+            $baseRoute = $this->parent ? (string)$this->parent()->rawRoute() : null;
 
             $slug = $this->adjustRouteCase(preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder));
 
@@ -2390,8 +2387,7 @@ class Page implements PageInterface
      */
     public function isFirst()
     {
-        $parent = $this->parent();
-        $collection = $parent ? $parent->collection('content', false) : null;
+        $collection = $this->parent()->collection('content', false);
         if ($collection instanceof Collection) {
             return $collection->isFirst($this->path());
         }
@@ -2406,8 +2402,7 @@ class Page implements PageInterface
      */
     public function isLast()
     {
-        $parent = $this->parent();
-        $collection = $parent ? $parent->collection('content', false) : null;
+        $collection = $this->parent()->collection('content', false);
         if ($collection instanceof Collection) {
             return $collection->isLast($this->path());
         }
@@ -2444,8 +2439,7 @@ class Page implements PageInterface
      */
     public function adjacentSibling($direction = 1)
     {
-        $parent = $this->parent();
-        $collection = $parent ? $parent->collection('content', false) : null;
+        $collection = $this->parent()->collection('content', false);
         if ($collection instanceof Collection) {
             return $collection->adjacentSibling($this->path(), $direction);
         }
@@ -2462,8 +2456,7 @@ class Page implements PageInterface
      */
     public function currentPosition()
     {
-        $parent = $this->parent();
-        $collection = $parent ? $parent->collection('content', false) : null;
+        $collection = $this->parent()->collection('content', false);
         if ($collection instanceof Collection) {
             return $collection->currentPosition($this->path());
         }
@@ -2522,7 +2515,7 @@ class Page implements PageInterface
     {
         $home = Grav::instance()['config']->get('system.home.alias');
 
-        return ($this->route() === $home || $this->rawRoute() === $home);
+        return $this->route() === $home || $this->rawRoute() === $home;
     }
 
     /**
@@ -2596,7 +2589,7 @@ class Page implements PageInterface
 
         /** @var Pages $pages */
         $inherited = $pages->inherited($this->route, $field);
-        $inheritedParams = $inherited ? (array)$inherited->value('header.' . $field) : [];
+        $inheritedParams = (array)$inherited->value('header.' . $field);
         $currentParams = (array)$this->value('header.' . $field);
         if ($inheritedParams && is_array($inheritedParams)) {
             $currentParams = array_replace_recursive($inheritedParams, $currentParams);
@@ -2676,7 +2669,8 @@ class Page implements PageInterface
                         }
                         foreach ($items as $item) {
                             $item = rawurldecode($item);
-                            if (empty($page->taxonomy[$taxonomy]) || !\in_array(htmlspecialchars_decode($item, ENT_QUOTES), $page->taxonomy[$taxonomy], true)
+                            if (empty($page->taxonomy[$taxonomy]) || !in_array(htmlspecialchars_decode($item,
+                                    ENT_QUOTES), $page->taxonomy[$taxonomy])
                             ) {
                                 $collection->remove($page->path());
                             }
@@ -2692,9 +2686,12 @@ class Page implements PageInterface
             // remove any inclusive sets from filer:
             $sets = ['published', 'visible', 'modular', 'routable'];
             foreach ($sets as $type) {
-                $var = "non-{$type}";
-                if (isset($params['filter'][$type], $params['filter'][$var]) && $params['filter'][$type] && $params['filter'][$var]) {
-                    unset ($params['filter'][$type], $params['filter'][$var]);
+                if (isset($params['filter'][$type]) && isset($params['filter']['non-'.$type])) {
+                    if ($params['filter'][$type] && $params['filter']['non-'.$type]) {
+                        unset ($params['filter'][$type]);
+                        unset ($params['filter']['non-'.$type]);
+                    }
+
                 }
             }
 
@@ -3029,32 +3026,28 @@ class Page implements PageInterface
 
         $this->_original->path($this->path());
 
-        $parent = $this->parent();
-        $siblings = $parent ? $parent->children() : null;
+        $siblings = $this->parent()->children();
+        $siblings->order('slug', 'asc', $new_order);
 
-        if ($siblings) {
-            $siblings->order('slug', 'asc', $new_order);
+        $counter = 0;
 
-            $counter = 0;
+        // Reorder all moved pages.
+        foreach ($siblings as $slug => $page) {
+            $order = (int)trim($page->order(), '.');
+            $counter++;
 
-            // Reorder all moved pages.
-            foreach ($siblings as $slug => $page) {
-                $order = (int)trim($page->order(), '.');
-                $counter++;
-
-                if ($order) {
-                    if ($page->path() === $this->path() && $this->folderExists()) {
-                        // Handle current page; we do want to change ordering number, but nothing else.
-                        $this->order($counter);
-                        $this->save(false);
-                    } else {
-                        // Handle all the other pages.
-                        $page = $pages->get($page->path());
-                        if ($page && $page->folderExists() && !$page->_action) {
-                            $page = $page->move($this->parent());
-                            $page->order($counter);
-                            $page->save(false);
-                        }
+            if ($order) {
+                if ($page->path() === $this->path() && $this->folderExists()) {
+                    // Handle current page; we do want to change ordering number, but nothing else.
+                    $this->order($counter);
+                    $this->save(false);
+                } else {
+                    // Handle all the other pages.
+                    $page = $pages->get($page->path());
+                    if ($page && $page->folderExists() && !$page->_action) {
+                        $page = $page->move($this->parent());
+                        $page->order($counter);
+                        $page->save(false);
                     }
                 }
             }

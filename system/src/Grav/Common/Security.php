@@ -9,12 +9,10 @@
 
 namespace Grav\Common;
 
-use Grav\Common\Page\Pages;
-
 class Security
 {
 
-    public static function detectXssFromPages(Pages $pages, $route = true, callable $status = null)
+    public static function detectXssFromPages($pages, $route = true, callable $status = null)
     {
         $routes = $pages->routes();
 

@@ -411,10 +411,8 @@ class Pages
             if ($page && $page->path() === $path) {
                 return $page;
             }
-
-            $parent = $page ? $page->parent() : null;
-            if ($parent && !$parent->root()) {
-                return $this->ancestor($parent->route(), $path);
+            if ($page && !$page->parent()->root()) {
+                return $this->ancestor($page->parent()->route(), $path);
             }
         }
 
@@ -435,12 +433,11 @@ class Pages
 
             $page = $this->dispatch($route, true);
 
-            $parent = $page ? $page->parent() : null;
-            if ($parent && $parent->value('header.' . $field) !== null) {
-                return $parent;
+            if ($page && $page->parent()->value('header.' . $field) !== null) {
+                return $page->parent();
             }
-            if ($parent && !$parent->root()) {
-                return $this->inherited($parent->route(), $field);
+            if ($page && !$page->parent()->root()) {
+                return $this->inherited($page->parent()->route(), $field);
             }
         }
 
@@ -515,7 +512,7 @@ class Pages
                             $pattern = '#^' . str_replace('/', '\/', ltrim($pattern, '^')) . '#';
                             try {
                                 $found = preg_replace($pattern, $replace, $source_url);
-                                if ($found !== $source_url) {
+                                if ($found != $source_url) {
                                     $this->grav->redirectLangSafe($found);
                                 }
                             } catch (ErrorException $e) {
@@ -1200,7 +1197,7 @@ class Pages
                 $this->routes[$route] = $page_path;
 
                 // add raw route
-                if ($raw_route !== $route) {
+                if ($raw_route != $route) {
                     $this->routes[$raw_route] = $page_path;
                 }
 
@@ -1350,7 +1347,7 @@ class Pages
 
             foreach ($list as $key => $dummy) {
                 $info = $pages[$key];
-                $order = \array_search($info['slug'], $manual, true);
+                $order = array_search($info['slug'], $manual);
                 if ($order === false) {
                     $order = $i++;
                 }

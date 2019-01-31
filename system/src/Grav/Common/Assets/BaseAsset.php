@@ -19,11 +19,11 @@ abstract class BaseAsset extends PropertyObject
 {
     use AssetUtilsTrait;
 
-    protected const CSS_ASSET = true;
-    protected const JS_ASSET = false;
+    const CSS_ASSET = true;
+    const JS_ASSET = false;
 
     /** @const Regex to match CSS import content */
-    protected const CSS_IMPORT_REGEX = '{@import(.*?);}';
+    const CSS_IMPORT_REGEX = '{@import(.*?);}';
 
     protected $asset;
 
