@@ -286,10 +286,9 @@ trait FlexMediaTrait
         $this->clearMediaCache();
     }
 
-    // TODO: Disabled because this slows down exception handling on missing Twig template files
-    /* *
+    /**
      * @return array
-     * /
+     */
     #[\ReturnTypeWillChange]
     public function __debugInfo()
     {
@@ -297,7 +296,6 @@ trait FlexMediaTrait
                 'uploads:private' => $this->getUpdatedMedia()
             ];
     }
-    */
 
     /**
      * @param array $files
